@@ -6,34 +6,29 @@ defmodule NoteCount do
 
   use GenServer
 
-  def get_count() do
-    GenServer.call(__MODULE__, :count)
-    {:reply, count, state} = handle_call(:count, _from, state)
-    count
+#  interface functions (to interact with GenServer)
+  def get_count(pid) do
+    GenServer.call(pid, :get_count)
+  end
+#
+  def inc_count(pid) do
+    GenServer.call(pid, :inc_count)
   end
 
-  def add_note(note) do
-    GenServer.call(__MODULE__, {:add_note, note})
-  end
+  def add_note
 
-  def start_link(state, opts) do
-    GenServer.start_link(__MODULE__, state, opts)
-  end
 
+# GenServer callbacks
   def init(_opts) do
     {:ok, %{:count => 0}}
   end
-
-  def handle_call(:count, _from, state) do
+#
+  def handle_call(:get_count, _, state) do
     {:reply, Map.get(state, :count), state}
   end
-
-  def handle_call({:add_note, note}, _from, state) do
-    new_count = Map.replace(state, :count, Map.put(state, :count) + 1)
+#
+  def handle_call(:inc_count, _, state) do
+    new_count = Map.put(state, :count, Map.get(state, :count) + 1)
     {:reply, "count updated", new_count}
-  end
-
-  def handle_cast(_msg, state) do
-    {:noreply, state}
   end
 end
